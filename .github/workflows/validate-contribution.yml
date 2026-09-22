@@ -1,0 +1,46 @@
+name: Validate and merge contribution
+
+# 用 pull_request_target 而不是 pull_request：
+# 这样 workflow 本身和 checkout 出来的代码永远来自主分支（可信），
+# 不会执行 fork 提交者能控制的代码，即使给了写权限 token 也是安全的。
+# PR 改了什么内容，全部通过只读的 GitHub API 去查，不 checkout PR 分支。
+on:
+  pull_request_target:
+    branches: [main]
+    paths:
+      - "contributions/**"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  validate-and-merge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main (trusted code only)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Validate contribution
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+        run: python3 scripts/validate_pr.py
+
+      - name: Merge PR
+        if: success()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh pr merge ${{ github.event.pull_request.number }} --squash --admin
+
+      - name: Comment on failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr comment ${{ github.event.pull_request.number }} \
+            --body "校验没通过，看看上面 Actions 日志里的 error 信息。常见原因：改了不止一个贡献文件、prev_hash 对不上最新世界状态（需要同步后重新生成）、或者今天已经贡献过了。"
