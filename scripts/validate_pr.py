@@ -28,6 +28,7 @@ import sys
 
 REPO = os.environ["GITHUB_REPOSITORY"]  # "owner/repo"
 BASE_SHA = os.environ["BASE_SHA"]
+HEAD_SHA = os.environ["HEAD_SHA"]
 PR_NUMBER = os.environ["PR_NUMBER"]
 PR_AUTHOR = os.environ["PR_AUTHOR"]
 
@@ -87,7 +88,7 @@ def main():
         fail(f"文件名格式不对: {filename}，应为 contributions/<date>-<author>-<hash8>.json")
     fn_date, fn_author, fn_hash8 = m.groups()
 
-    raw = gh_api_raw(f"repos/{REPO}/contents/{filename}?ref={added[0]['sha']}")
+    raw = gh_api_raw(f"repos/{REPO}/contents/{filename}?ref={HEAD_SHA}")
     try:
         entry = json.loads(raw)
     except json.JSONDecodeError:
