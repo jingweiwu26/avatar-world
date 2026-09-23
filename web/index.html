@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Avatar World</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <h1>Avatar World</h1>
+      <p class="tagline">一个共享的持久世界。每人每天一个动作，Avatar 是你贡献历史的可视化压缩。</p>
+    </header>
+
+    <section id="card-section">
+      <pre id="avatar-card" class="card">加载世界状态中...</pre>
+    </section>
+
+    <section id="form-section" class="form-section" hidden>
+      <h2>今天想为这个世界创造点什么？</h2>
+      <div class="type-grid" id="type-grid"></div>
+      <textarea id="content-input" maxlength="200" placeholder="写下你的贡献..." rows="3"></textarea>
+      <button id="submit-btn">贡献给世界</button>
+      <p id="form-msg" class="msg"></p>
+    </section>
+
+    <section id="already-section" class="form-section" hidden>
+      <p class="msg">今天已经为这个世界贡献过了，明天再来。</p>
+    </section>
+
+    <section class="history-section">
+      <button id="toggle-history">查看世界历史</button>
+      <ul id="history-list" class="history-list" hidden></ul>
+    </section>
+
+    <footer>
+      <p>
+        数据完全公开、带哈希链防篡改：
+        <a href="https://github.com/jingweiwu26/avatar-world" target="_blank" rel="noopener">jingweiwu26/avatar-world</a>
+      </p>
+    </footer>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
