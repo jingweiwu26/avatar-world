@@ -238,6 +238,14 @@ def face_for(contributions):
     return FACES[idx]
 
 
+def canonical_hash(entry):
+    """哈希输入用紧凑、无空格、key 排序的 JSON——必须和网页版 JS 实现字节对字节一致。"""
+    payload = {k: v for k, v in entry.items() if k != "hash"}
+    return hashlib.sha256(
+        json.dumps(payload, sort_keys=True, ensure_ascii=False, separators=(",", ":")).encode()
+    ).hexdigest()
+
+
 def avatar_code(contributions):
     if not contributions:
         return "AVT-0000"
@@ -362,9 +370,7 @@ def prompt_contribution(username, last_hash):
         "timestamp": datetime.now().isoformat(timespec="seconds"),
         "prev_hash": last_hash,
     }
-    entry["hash"] = hashlib.sha256(
-        json.dumps(entry, sort_keys=True, ensure_ascii=False).encode()
-    ).hexdigest()
+    entry["hash"] = canonical_hash(entry)
     return entry
 
 
@@ -381,12 +387,8 @@ def show_history(world_contributions):
 def verify_chain(world_contributions):
     broken = []
     for item in world_contributions:
-        expected = dict(item)
-        stored_hash = expected.pop("hash", None)
-        recomputed = hashlib.sha256(
-            json.dumps(expected, sort_keys=True, ensure_ascii=False).encode()
-        ).hexdigest()
-        if stored_hash != recomputed:
+        recomputed = canonical_hash(item)
+        if item.get("hash") != recomputed:
             broken.append(item)
     return broken
 

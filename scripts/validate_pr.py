@@ -62,9 +62,10 @@ def gh_api_raw(path):
 
 
 def compute_hash(entry):
+    """紧凑、无空格、key 排序的 JSON——必须和网页版 JS 实现字节对字节一致。"""
     payload = {k: v for k, v in entry.items() if k != "hash"}
     return hashlib.sha256(
-        json.dumps(payload, sort_keys=True, ensure_ascii=False).encode()
+        json.dumps(payload, sort_keys=True, ensure_ascii=False, separators=(",", ":")).encode()
     ).hexdigest()
 
 
